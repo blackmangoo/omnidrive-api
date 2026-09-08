@@ -1,0 +1,111 @@
+[
+  {
+    "category": "Basic Maintenance",
+    "title": "How to Change a Flat Tire",
+    "content": "To change a flat tire: 1. Park on a flat, safe surface and engage the parking brake. 2. Loosen the lug nuts slightly while the car is on the ground. 3. Jack up the vehicle using the manufacturer's designated pinch welds or lift points. 4. Remove the lug nuts and the flat tire. 5. Mount the spare tire and hand-tighten the lug nuts. 6. Lower the car until the tire touches the ground, then fully torque the lug nuts in a star or criss-cross pattern to ensure even seating."
+  },
+  {
+    "category": "Basic Maintenance",
+    "title": "How to Check and Add Engine Oil",
+    "content": "Engine oil check: Ensure the engine is warm but turned off, and the car is parked on level ground. Pull out the dipstick, wipe it clean, reinsert it fully, and pull it out again to check the level. It should fall between the 'Low' and 'Full' dots. If low, open the oil filler cap on top of the engine and add the manufacturer-recommended oil grade (e.g., 5W-30) in half-quart increments, checking the dipstick to avoid overfilling."
+  },
+  {
+    "category": "Basic Maintenance",
+    "title": "Jump-Starting a Dead Car Battery",
+    "content": "Jump-starting protocol: 1. Position the donor car close but not touching. 2. Connect the RED cable to the positive (+) terminal of the dead battery. 3. Connect the other RED end to the positive (+) of the good battery. 4. Connect the BLACK cable to the negative (-) of the good battery. 5. Connect the final BLACK end to an unpainted metal surface on the dead car's engine block (ground). 6. Start the donor car, wait a few minutes, then start the dead car."
+  },
+  {
+    "category": "Basic Maintenance",
+    "title": "Changing Windshield Wiper Blades",
+    "content": "To replace wiper blades: Lift the wiper arm away from the windshield. Press the small tab or button where the blade meets the arm and slide the old blade off the J-hook. Slide the new blade onto the hook until it clicks into place. Gently lower the arm back onto the windshield. Do not let the bare metal arm snap back, as it can crack the windshield."
+  },
+  {
+    "category": "Basic Maintenance",
+    "title": "Replacing Engine Air Filter",
+    "content": "Replacing the engine air filter improves fuel efficiency and performance. Locate the air filter box under the hood (usually a black plastic box with metal clips or screws). Undo the clips, open the housing, and note how the old filter is oriented. Remove the dirty filter, vacuum any debris from the box, drop in the new filter with the rubber seal facing the correct way, and snap the housing closed."
+  },
+  {
+    "category": "Basic Maintenance",
+    "title": "Cabin Air Filter Replacement",
+    "content": "The cabin air filter cleans the air entering the HVAC system. It is usually located behind the passenger glove box. Empty the glove box, pinch the sides to bypass the stops, and lower the box completely. Unclip the rectangular plastic filter cover, pull out the old filter (note the airflow direction arrows), slide in the new filter matching the airflow arrows, and reassemble."
+  },
+
+  {
+    "category": "Brakes",
+    "title": "How to Replace Brake Pads",
+    "content": "Brake pad replacement: Safely jack up the car and remove the wheel. Unbolt the brake caliper (leave the brake line attached) and suspend it with a zip tie. Remove the old brake pads from the bracket. Use a C-clamp or caliper compression tool to push the caliper piston back into its housing. Lubricate the slide pins, install the new pads with retaining clips, slide the caliper back over, and bolt it down. Pump the brakes before driving."
+  },
+  {
+    "category": "Brakes",
+    "title": "Bleeding the Brake System",
+    "content": "Bleeding brakes removes trapped air for a firm pedal feel. Start at the wheel furthest from the master cylinder (usually rear right). Have a helper pump the brake pedal 3 times and hold it down. Open the bleeder valve on the caliper using a wrench, letting air/fluid escape into a catch bottle. The pedal will sink to the floor. Close the valve, then tell the helper to release the pedal. Repeat until the fluid runs clear with no bubbles. Top up brake fluid constantly."
+  },
+
+  {
+    "category": "DIY Modifications",
+    "title": "Installing a Cold Air Intake (CAI)",
+    "content": "DIY Cold Air Intake Mod: A CAI brings cooler, denser air to the engine, slightly improving horsepower and throttle response. Disconnect the negative battery terminal. Remove the factory air box and intake tube by loosening the hose clamps and MAF (Mass Airflow) sensor. Install the new heat shield. Attach the new intake pipe, securely mount the cone filter, and carefully reinstall the MAF sensor. Ensure all silicone couplers and clamps are tight to prevent vacuum leaks."
+  },
+  {
+    "category": "DIY Modifications",
+    "title": "Installing an Aftermarket Exhaust System (Cat-Back)",
+    "content": "Cat-back exhaust installation: Safely lift the vehicle on jack stands or a lift. Spray exhaust hanger grommets and flange bolts with penetrating oil (e.g., WD-40). Unbolt the factory exhaust at the catalytic converter flange and slide it off the rubber hangers. Mount the new exhaust sections loosely starting from the front. Slip the hangers into the rubber grommets. Once everything is aligned properly, tighten all flange bolts and V-band clamps to seal exhaust leaks."
+  },
+  {
+    "category": "DIY Modifications",
+    "title": "Installing Coilovers / Lowering Suspension",
+    "content": "Installing coilovers lowers the car's center of gravity for better handling. Lift the car and remove the wheels. Unbolt the sway bar end links, brake line brackets, and lower strut mount bolts. Open the hood and remove the top strut tower nuts. Pull out the factory MacPherson strut assembly. Install the new coilover, bolting the top mount first, then attach the lower knuckle. Adjust the ride height by spinning the threaded shock body, not by compressing the spring. Always get a professional wheel alignment afterward."
+  },
+  {
+    "category": "DIY Modifications",
+    "title": "Upgrading to LED Headlights",
+    "content": "LED Headlight upgrade: Wait for the engine and lights to cool. Access the back of the headlight housing (sometimes requiring wheel well liner removal). Unplug the halogen bulb connector, unclip the retaining wire, and remove the bulb. Insert the LED bulb, ensuring the LED chips face exactly 3 o'clock and 9 o'clock for a proper beam pattern. Secure the clip, plug in the ballast/connector, and test the lights. Make sure the dust cover fits back on to prevent moisture."
+  },
+  {
+    "category": "DIY Modifications",
+    "title": "Applying Vinyl Wrap to Car Panels",
+    "content": "DIY Car Wrapping basics: Thoroughly wash the car and use a clay bar to remove all surface contaminants. Wipe the panel with 70% isopropyl alcohol. Cut the vinyl wrap slightly larger than the panel. Peel the backing, lay the wrap over the panel, and use a felt-edged squeegee to push air out from the center to the edges. Use a heat gun on low to soften the vinyl around curves and stretch it. Once done, use the heat gun to 'post-heat' the edges to 200°F (90°C) to kill the vinyl's memory so it doesn't peel."
+  },
+  {
+    "category": "DIY Modifications",
+    "title": "Painting Brake Calipers",
+    "content": "DIY Brake Caliper Painting: Lift the car and remove the wheels. Clean the calipers obsessively using brake cleaner and a wire brush to remove all brake dust and rust. Mask off the brake rotor, bleed valve, and rubber boots with painter's tape and plastic bags. Apply 2-3 light coats of high-temperature caliper paint (VHT or similar), waiting 10 minutes between coats. Finish with a high-temp clear coat for gloss. Let dry for a few hours before driving."
+  },
+  {
+    "category": "DIY Modifications",
+    "title": "Installing Apple CarPlay / Android Auto Head Unit",
+    "content": "Upgrading stereo head unit: Use plastic pry tools to remove the dash trim surrounding the radio. Unscrew the mounting bolts and pull out the factory radio. Use a vehicle-specific wiring harness adapter—solder and heat-shrink the new head unit's wires to the adapter harness matching the color codes (yellow=constant 12V, red=ignition, black=ground, etc.). Plug in the antenna and microphone. Mount the new double-DIN unit into the dash kit, screw it in, and snap the trim back."
+  },
+
+  {
+    "category": "Advanced Repairs",
+    "title": "Replacing an Alternator",
+    "content": "Alternator replacement: DISCONNECT THE NEGATIVE BATTERY TERMINAL first to prevent arcing. Locate the serpentine belt tensioner and use a wrench to relieve tension, then slip the belt off the alternator pulley. Unplug the alternator electrical connector and unbolt the heavy-gauge power wire. Remove the mounting bolts and pry the old alternator out. Put the new alternator in place, tighten the bolts, reconnect the wires, and route the serpentine belt back on following the correct diagram."
+  },
+  {
+    "category": "Advanced Repairs",
+    "title": "Changing Spark Plugs and Ignition Coils",
+    "content": "Spark plug replacement: Remove the engine cover. Unplug the electrical connector from the ignition coil and unbolt it (usually a 10mm bolt). Pull the coil pack straight up. Use a 5/8 or 9/16 spark plug socket with a long extension to unscrew the old spark plug. Check the gap on the new plug. Apply a tiny amount of anti-seize to the threads (if recommended) and thread it in by hand to avoid cross-threading. Torque to spec, then reinstall the coil pack."
+  },
+  {
+    "category": "Advanced Repairs",
+    "title": "Flushing the Cooling System (Radiator)",
+    "content": "Radiator flush: NEVER open a hot radiator cap. Once the engine is completely cold, place a drain pan under the radiator petcock (drain valve) and open it. Let the old coolant drain. Close the valve, fill the radiator with distilled water and a radiator flush chemical. Run the engine with the heater on maximum for 15 minutes. Let it cool, drain the water, and finally refill with a 50/50 mix of the correct antifreeze and distilled water. 'Burp' the system by letting it run with the cap off to release air bubbles."
+  },
+
+  {
+    "category": "Diagnostics",
+    "title": "Understanding OBD2 Check Engine Light Codes",
+    "content": "OBD2 Diagnostics: If the Check Engine Light comes on, plug an OBD2 scanner into the port under the driver's side dashboard. Read the code. P0300 series indicates engine misfires (check spark plugs and coils). P0171/P0172 indicates running lean/rich (check vacuum leaks or MAF sensor). P0420 indicates catalytic converter inefficiency (could be O2 sensors or the cat itself). P0455 indicates an EVAP leak (often just a loose gas cap)."
+  },
+  {
+    "category": "Diagnostics",
+    "title": "Diagnosing Car Pulling to One Side",
+    "content": "If your car pulls to the left or right while driving on a straight, flat road: 1. Check tire pressure first; uneven pressure causes pulling. 2. Check tire wear; uneven tread means alignment issues. 3. Suspect a stuck brake caliper if one wheel is excessively hot after driving. 4. If pressure and brakes are fine, the vehicle needs a professional wheel alignment (camber, caster, or toe is out of spec)."
+  },
+  {
+    "category": "Diagnostics",
+    "title": "Diagnosing Weird Engine Noises",
+    "content": "Engine noises guide: A high-pitched squealing on startup or acceleration is usually a worn or loose serpentine belt. A deep knocking sound from the engine block (rod knock) indicates severe internal engine wear or oil starvation. A ticking sound that speeds up with RPM is often noisy lifters or a minor exhaust manifold leak. A grinding noise when braking means brake pads are completely worn down to the metal backing plate."
+  }
+]

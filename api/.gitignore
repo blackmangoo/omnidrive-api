@@ -1,0 +1,21 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# YOLOv8 models (Optional: remove this if you WANT to upload the model to GitHub)
+# models/*.pt
+
+# OS generated files
+.DS_Store
+Thumbs.db
