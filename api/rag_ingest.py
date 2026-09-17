@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import time
 from supabase import create_client, Client
 from google import genai
@@ -6,15 +7,16 @@ from google.genai import types
 import json
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Finding #7 & #12: Load environment variables with path anchored to this file
+env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
-# Setup Supabase client
+# Setup Supabase client - prefer service role key if available for administrative seeding
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://cqeubytgsrxdkfejxvan.supabase.co")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_KEY")
 
 if not SUPABASE_KEY:
-    print("Please set SUPABASE_KEY environment variable.")
+    print("Please set SUPABASE_KEY or SUPABASE_SERVICE_ROLE_KEY environment variable.")
     exit(1)
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -38,19 +40,19 @@ for i, entry in enumerate(knowledge_data):
     try:
         # Combine title, category, and content for rich context
         doc_text = f"[{entry['category']}] {entry['title']}: {entry['content']}"
-        
+
         response = client.models.embed_content(
             model='models/gemini-embedding-2',
             contents=doc_text,
             config=types.EmbedContentConfig(output_dimensionality=768)
         )
         embedding = response.embeddings[0].values
-        
+
         supabase.table('part_docs').insert({
             "content": doc_text,
             "embedding": embedding
         }).execute()
-        
+
         print(f"Inserted document {i+1}")
         time.sleep(1)
     except Exception as e:
