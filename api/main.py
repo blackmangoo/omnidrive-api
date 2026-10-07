@@ -6,6 +6,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["YOLO_VERBOSE"] = "False"
+os.environ["YOLO_OFFLINE"] = "True"
 
 import asyncio
 import io
@@ -71,6 +72,11 @@ def get_yolo_model():
                     print("Warning: car_parts_large_v1.pt model file not found on disk.")
     return _yolo_model
 
+@app.on_event("startup")
+def preload_yolo_model():
+    """Warms up the YOLO model asynchronously right after port binding so the first /predict is fast."""
+    threading.Thread(target=get_yolo_model, daemon=True).start()
+
 @app.get("/")
 @app.post("/health")
 @app.get("/health")
@@ -97,11 +103,15 @@ def health_check():
 # Finding #6: 10 MB upload cap to prevent memory exhaustion
 MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
 
+# Thread synchronization lock for non-thread-safe YOLO predictor
+_inference_lock = threading.Lock()
+
 def _sync_yolo_inference(model: YOLO, image: Image.Image):
-    """CPU-bound inference executed off the asyncio event loop."""
+    """CPU-bound inference executed off the asyncio event loop with mutex locking."""
     start_time = time.time()
-    with torch.inference_mode():
-        results = model.predict(source=image, imgsz=224, verbose=False)
+    with _inference_lock:
+        with torch.inference_mode():
+            results = model.predict(source=image, imgsz=224, verbose=False)
     inference_time = (time.time() - start_time) * 1000
 
     result = results[0]
@@ -153,15 +163,21 @@ async def predict_car_part(file: UploadFile = File(...)):
             detail=f"Uploaded file exceeds maximum size limit of {MAX_IMAGE_SIZE_BYTES // (1024 * 1024)}MB.",
         )
 
-    # Finding #8: Catch UnidentifiedImageError and return 400 Bad Request
+    # Finding #8: Catch UnidentifiedImageError, truncated bytes, and return 400 Bad Request
     try:
         image = Image.open(io.BytesIO(contents))
         if image.mode != "RGB":
             image = image.convert("RGB")
+        image.load()  # Force decode raster pixels so truncated/corrupt streams fail here
     except UnidentifiedImageError:
         raise HTTPException(
             status_code=400,
             detail="Uploaded file is corrupted or not a valid image format.",
+        )
+    except OSError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Uploaded image is truncated or corrupted: {str(e)}",
         )
     except Exception as e:
         raise HTTPException(
@@ -194,22 +210,36 @@ from supabase import create_client
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://cqeubytgsrxdkfejxvan.supabase.co")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_KEY else None
+try:
+    supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_KEY else None
+except Exception as e:
+    print(f"Warning: Supabase client could not be initialized: {e}")
+    supabase_client = None
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+_http_session = requests.Session()
 
 class ChatRequest(BaseModel):
     query: str
 
 def _sync_chat_with_rag(query: str):
     """Synchronous network I/O and vector search executed off the asyncio event loop."""
+    clean_query = query.strip()
+    if not clean_query:
+        raise HTTPException(status_code=400, detail="Query cannot be empty.")
+    if len(clean_query) > 2000:
+        clean_query = clean_query[:2000]
+
+    # Sanitize XML closing tags to avoid prompt boundary breakout
+    safe_query = clean_query.replace("</user_question>", "[user_question_end]")
+
     # 1. Embedding request with status and error validation (Finding #9)
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:embedContent?key={GEMINI_API_KEY}"
     try:
-        res = requests.post(
+        res = _http_session.post(
             url,
             json={
                 "model": "models/gemini-embedding-2",
-                "content": {"parts": [{"text": query}]},
+                "content": {"parts": [{"text": clean_query}]},
                 "outputDimensionality": 768,
             },
             timeout=15,
@@ -241,6 +271,7 @@ def _sync_chat_with_rag(query: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Supabase vector search error: {str(e)}")
 
+    docs_count = len(docs) if docs else 0
     context_text = "\n\n".join([doc["content"] for doc in docs]) if docs else "No specific DIY documentation found."
 
     prompt = (
@@ -250,47 +281,60 @@ def _sync_chat_with_rag(query: str):
         "If the documentation does not directly answer the inquiry, provide helpful automotive "
         "best practices and emphasize workshop safety.\n\n"
         f"<technical_documentation>\n{context_text}\n</technical_documentation>\n\n"
-        f"<user_question>\n{query}\n</user_question>"
+        f"<user_question>\n{safe_query}\n</user_question>"
     )
 
-    # 3. Gemini Chat Completion with status and error validation (Finding #9)
-    chat_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={GEMINI_API_KEY}"
-    try:
-        chat_res = requests.post(
-            chat_url,
-            json={"contents": [{"parts": [{"text": prompt}]}]},
-            timeout=25,
-        )
-    except requests.exceptions.Timeout:
-        raise HTTPException(status_code=504, detail="Gemini text generation request timed out.")
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Failed to reach Gemini generation endpoint: {str(e)}")
+    # 3. Gemini Chat Completion with multi-model fallback and error validation
+    candidate_models = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-lite-latest"]
+    chat_data = None
+    last_error_msg = "Unknown error"
 
-    if chat_res.status_code != 200:
+    for model_name in candidate_models:
+        chat_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+        try:
+            chat_res = _http_session.post(
+                chat_url,
+                json={"contents": [{"parts": [{"text": prompt}]}]},
+                timeout=20,
+            )
+            if chat_res.status_code == 200:
+                data = chat_res.json()
+                if "error" not in data:
+                    chat_data = data
+                    break
+            last_error_msg = chat_res.text[:200]
+        except requests.exceptions.Timeout:
+            last_error_msg = f"{model_name} timed out"
+            continue
+        except Exception as e:
+            last_error_msg = str(e)
+            continue
+
+    if not chat_data:
         raise HTTPException(
             status_code=502,
-            detail=f"Gemini generation API error (HTTP {chat_res.status_code}): {chat_res.text[:200]}",
+            detail=f"Gemini generation API error across fallback models: {last_error_msg}",
         )
-
-    try:
-        chat_data = chat_res.json()
-    except Exception:
-        raise HTTPException(status_code=502, detail="Invalid JSON received from Gemini generation API.")
-
-    if "error" in chat_data:
-        error_msg = chat_data["error"].get("message", "Gemini API error")
-        raise HTTPException(status_code=502, detail=f"AI model error: {error_msg}")
 
     candidates = chat_data.get("candidates", [])
     if not candidates or "content" not in candidates[0]:
         return {
             "success": True,
             "answer": "I could not generate a response for that inquiry. Please try rephrasing.",
-            "retrieved_docs": len(docs),
+            "retrieved_docs": docs_count,
         }
 
-    answer_text = candidates[0]["content"]["parts"][0]["text"]
-    return {"success": True, "answer": answer_text, "retrieved_docs": len(docs)}
+    parts = candidates[0].get("content", {}).get("parts", [])
+    answer_text = None
+    for p in parts:
+        if isinstance(p, dict) and "text" in p and p["text"]:
+            answer_text = p["text"]
+            break
+
+    if not answer_text:
+        answer_text = "I could not generate a response for that inquiry. Please try rephrasing."
+
+    return {"success": True, "answer": answer_text, "retrieved_docs": docs_count}
 
 @app.post("/chat")
 async def chat_with_rag(request: ChatRequest):
