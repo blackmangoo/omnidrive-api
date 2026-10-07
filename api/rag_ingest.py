@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import sys
 import time
 from supabase import create_client, Client
 from google import genai
@@ -36,10 +37,17 @@ with open(json_path, 'r', encoding='utf-8') as f:
 
 print(f"Loaded {len(knowledge_data)} documents from knowledge base. Generating embeddings...")
 
+errors = 0
 for i, entry in enumerate(knowledge_data):
     try:
         # Combine title, category, and content for rich context
         doc_text = f"[{entry['category']}] {entry['title']}: {entry['content']}"
+
+        # Prevent duplicate inflation in vector database
+        existing = supabase.table('part_docs').select('id').eq('content', doc_text).limit(1).execute()
+        if existing.data:
+            print(f"Skipping document {i+1} (already ingested)")
+            continue
 
         response = client.models.embed_content(
             model='models/gemini-embedding-2',
@@ -54,8 +62,13 @@ for i, entry in enumerate(knowledge_data):
         }).execute()
 
         print(f"Inserted document {i+1}")
-        time.sleep(1)
+        time.sleep(0.5)
     except Exception as e:
+        errors += 1
         print(f"Error processing document {i+1}: {e}")
+
+if errors > 0:
+    print(f"Ingestion completed with {errors} failures out of {len(knowledge_data)} documents.")
+    sys.exit(1)
 
 print("Done! The RAG knowledge base is now populated.")

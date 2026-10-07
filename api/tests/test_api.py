@@ -1,3 +1,4 @@
+import concurrent.futures
 import io
 import os
 import sys
@@ -88,7 +89,34 @@ def test_ingest_data_fail_closed_unauthorized():
     assert response_bad_token.status_code == 403
 
 
+def test_predict_concurrent_requests():
+    """Verify concurrent requests to /predict do not trigger YOLO threading race conditions."""
+    img_byte_arr = io.BytesIO()
+    test_img = Image.new("RGB", (224, 224), color=(64, 128, 192))
+    test_img.save(img_byte_arr, format="JPEG")
+    img_bytes = img_byte_arr.getvalue()
+
+    def send_one(i):
+        files = {"file": (f"syn_{i}.jpg", img_bytes, "image/jpeg")}
+        return client.post("/predict", files=files)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        futures = [executor.submit(send_one, i) for i in range(4)]
+        results = [f.result() for f in futures]
+
+    for res in results:
+        assert res.status_code in (200, 503)
+        if res.status_code == 200:
+            assert res.json().get("success") is True
+
+
 def test_chat_requires_body():
     """Verify /chat requires a JSON body containing query."""
     response = client.post("/chat", json={})
     assert response.status_code == 422
+
+
+def test_chat_empty_query_rejected():
+    """Verify /chat rejects empty string queries with HTTP 400."""
+    response = client.post("/chat", json={"query": "   "})
+    assert response.status_code == 400

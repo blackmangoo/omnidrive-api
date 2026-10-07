@@ -9,6 +9,7 @@ os.environ["YOLO_VERBOSE"] = "False"
 os.environ["YOLO_OFFLINE"] = "True"
 
 import asyncio
+from contextlib import asynccontextmanager
 import io
 from pathlib import Path
 import subprocess
@@ -31,17 +32,6 @@ torch.set_num_threads(1)
 # Finding #7: Load environment variables with path anchored to this file
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path)
-
-app = FastAPI(title="OmniDrive Car Parts Classification & RAG API", version="1.0.0")
-
-# Enable CORS for mobile app/frontend access
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # ── Thread-Safe Lazy Loaded YOLO Model (Finding #5) ───────────────────────────
 _yolo_model = None
@@ -72,10 +62,26 @@ def get_yolo_model():
                     print("Warning: car_parts_large_v1.pt model file not found on disk.")
     return _yolo_model
 
-@app.on_event("startup")
-def preload_yolo_model():
-    """Warms up the YOLO model asynchronously right after port binding so the first /predict is fast."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Warms up the YOLO model asynchronously right after startup so the first /predict is fast."""
     threading.Thread(target=get_yolo_model, daemon=True).start()
+    yield
+
+app = FastAPI(
+    title="OmniDrive Car Parts Classification & RAG API",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# Enable CORS for mobile app/frontend access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 @app.post("/health")
